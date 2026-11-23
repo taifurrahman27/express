@@ -120,6 +120,83 @@ app.get("/users/:id", async (req: Request, res: Response) => {
 });
 
 
+
+
+app.put("/users/:id", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid user id",
+    });
+  }
+
+  const { name, password, age, is_active } = req.body;
+
+  if (
+    name === undefined &&
+    password === undefined &&
+    age === undefined &&
+    is_active === undefined
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "Provide at least one field to update (name, password, age, is_active)",
+    });
+  }
+
+  if (name !== undefined && (typeof name !== "string" || name.trim() === "")) {
+    return res.status(400).json({ success: false, message: "Invalid name" });
+  }
+  if (age !== undefined && (!Number.isInteger(age) || age < 0)) {
+    return res.status(400).json({ success: false, message: "Invalid age" });
+  }
+  if (is_active !== undefined && typeof is_active !== "boolean") {
+    return res.status(400).json({ success: false, message: "is_active must be a boolean" });
+  }
+  if (password !== undefined && (typeof password !== "string" || password.length < 8)) {
+    return res.status(400).json({ success: false, message: "Password must be at least 8 characters" });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE users
+       SET name = COALESCE($1, name),
+           password = COALESCE($2, password),
+           age = COALESCE($3, age),
+           is_active = COALESCE($4, is_active),
+           updated_at = NOW()
+       WHERE id = $5
+       RETURNING id, name, email, age, is_active, created_at, updated_at`,
+      [name ?? null, password ?? null, age ?? null, is_active ?? null, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("PUT /users/:id failed:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
+
+
+
+
+
 app.listen(port, () => {
   console.log(`Express app running on port ${port}`);
 });
