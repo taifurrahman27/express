@@ -60,26 +60,24 @@ app.post("/users", async (req: Request, res: Response) => {
 });
 
 
-app.get("/users", async (req: Request, res: Response)=>{
-try {
-  const result = await pool.query(`
-    SELECT * FROM users
-    `);
+app.get("/users", async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM users ORDER BY id`
+    );
 
-    res.status(200).json({
-      success:true,
-      message:"Users list retrived",
+    return res.status(200).json({
+      success: true,
+      message: "Users list retrieved successfully",
       data: result.rows,
     });
-
-} catch (error:any) {
-  res.status(404).json({
-    success: false,
-    message:error?.message,
-    error:error,
-  });
-  
-}
+  } catch (error) {
+    console.error("GET /users failed:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 });
 
 
@@ -96,7 +94,7 @@ app.get("/users/:id", async (req: Request, res: Response) => {
 
   try {
     const result = await pool.query(
-      `SELECT id, name, email, created_at FROM users WHERE id = $1`,
+      `SELECT * FROM users WHERE id = $1`,
       [id]
     );
 
