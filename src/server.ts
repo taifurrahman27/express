@@ -27,9 +27,9 @@ const initDB = async () => {
         updated_at TIMESTAMP DEFAULT NOW()
       );
     `);
-    console.log("Database connected");
+    console.log("Database connected!");
   } catch (error) {
-    console.error("Database init failed:", error);
+    console.error("Database initialization failed:", error);
   }
 };
 
@@ -59,6 +59,28 @@ app.post("/users", async (req: Request, res: Response) => {
   }
 });
 
+
+app.get("/users", async (req: Request, res: Response)=>{
+try {
+  const result = await pool.query(`
+    SELECT * FROM users
+    `);
+
+    res.status(200).json({
+      success:true,
+      message:"Users list retrived",
+      data: result.rows,
+    });
+
+} catch (error:any) {
+  res.status(404).json({
+    success: false,
+    message:error?.message,
+    error:error,
+  });
+  
+}
+});
 
 
 
