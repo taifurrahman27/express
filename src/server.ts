@@ -1,37 +1,12 @@
 import "dotenv/config";
 import express, { type Application, type Request, type Response } from "express";
-import { Pool } from "pg";
+import { initDB, pool } from "./db";
 
 const app: Application = express();
 const port = Number(process.env.PORT) || 5000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const connectionString = process.env.DATABASE_URL_POOLED;
-if (!connectionString) throw new Error("DATABASE_URL_POOLED is not set");
-
-const pool = new Pool({ connectionString });
-
-const initDB = async () => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255),
-        email VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        age INT,
-        is_active BOOLEAN DEFAULT true,
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
-      );
-    `);
-    console.log("Database connected!");
-  } catch (error) {
-    console.error("Database initialization failed:", error);
-  }
-};
 
 initDB();
 
