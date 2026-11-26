@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { pool } from "../../db";
 import { userService } from "./user.service";
+
 
 const createUser = async (req: Request, res: Response) => {
   try {
@@ -69,6 +69,67 @@ const result = await userService.getSingleUserFromDB(id as number,res);
 };
 
 
+const updateUser = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid user id",
+    });
+  }
+
+  const { name, password, age, is_active } = req.body;
+
+  if (
+    name === undefined &&
+    password === undefined &&
+    age === undefined &&
+    is_active === undefined
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "Provide at least one field to update (name, password, age, is_active)",
+    });
+  }
+
+  if (name !== undefined && (typeof name !== "string" || name.trim() === "")) {
+    return res.status(400).json({ success: false, message: "Invalid name" });
+  }
+  if (age !== undefined && (!Number.isInteger(age) || age < 0)) {
+    return res.status(400).json({ success: false, message: "Invalid age" });
+  }
+  if (is_active !== undefined && typeof is_active !== "boolean") {
+    return res.status(400).json({ success: false, message: "is_active must be a boolean" });
+  }
+  if (password !== undefined && (typeof password !== "string" || password.length < 8)) {
+    return res.status(400).json({ success: false, message: "Password must be at least 8 characters" });
+  }
+
+  try {
+const result = await userService.updateUserInDB(req.body, id as number)
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("PUT /users/:id failed:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+}
+
 
 
 
@@ -76,4 +137,5 @@ export const userController = {
     createUser,
     getUsers,
     getSingleUser,
+    updateUser,
 };

@@ -36,10 +36,27 @@ return result;
 };
 
 
+const updateUserInDB = async (payload:any, id :number)=>{
+  const {name , password, age, is_active}= payload
+      const result = await pool.query(
+      `UPDATE users
+       SET name = COALESCE($1, name),
+           password = COALESCE($2, password),
+           age = COALESCE($3, age),
+           is_active = COALESCE($4, is_active),
+           updated_at = NOW()
+       WHERE id = $5
+       RETURNING id, name, email, age, is_active, created_at, updated_at`,
+      [name ?? null, password ?? null, age ?? null, is_active ?? null, id]
+    );
+return result;
+};
+
 
 export const userService ={
     createUserIntoDB,
     getUsersFromDB,
     getSingleUserFromDB,
+    updateUserInDB,
 
 };
