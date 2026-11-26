@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express, { type Application, type Request, type Response } from "express";
-import { initDB, pool } from "./db";
+import { pool } from "./db";
 import { userRouter } from "./modules/users/user.route";
 
 const app: Application = express();
