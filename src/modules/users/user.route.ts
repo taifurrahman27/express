@@ -1,12 +1,11 @@
 import { Router} from "express";
 import { userController } from "./user.controller";
 
-const router = Router()
+const router = Router();
 
 
-
-
-router.post("/users", userController.createUser );
+router.post("/", userController.createUser );
+router.get("/", userController.getUsers );
 
 
 

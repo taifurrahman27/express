@@ -18,6 +18,28 @@ const result = await userService.createUserIntoDB(req.body)
 };
 
 
+const getUsers = async (req: Request, res: Response) => {
+  try {
+    const result = await userService.getUsersFromDB();
+
+    return res.status(200).json({
+      success: true,
+      message: "Users list retrieved successfully",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("GET /users failed:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
+
+
 export const userController = {
-    createUser
-}
+    createUser,
+    getUsers,
+};

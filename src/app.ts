@@ -11,6 +11,9 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
+app.use("/users", userRouter);
+
+
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
@@ -19,32 +22,6 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-
-app.use("/", userRouter);
-
-
-
-
-
-app.get("/users", async (req: Request, res: Response) => {
-  try {
-    const result = await pool.query(
-      `SELECT * FROM users ORDER BY id`
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Users list retrieved successfully",
-      data: result.rows,
-    });
-  } catch (error) {
-    console.error("GET /users failed:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
-});
 
 
 
