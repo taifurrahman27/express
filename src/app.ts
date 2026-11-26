@@ -1,14 +1,11 @@
 import "dotenv/config";
 import express, { type Application, type Request, type Response } from "express";
-import { pool } from "./db";
 import { userRouter } from "./modules/users/user.route";
 
 const app: Application = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-
 
 
 app.use("/users", userRouter);
