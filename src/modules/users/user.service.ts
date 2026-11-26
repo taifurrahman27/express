@@ -1,3 +1,4 @@
+import type { Response } from "express";
 import { pool } from "../../db";
 import type { IUser } from "./user.interface";
 
@@ -19,8 +20,26 @@ const getUsersFromDB = async ()=>{
 };
 
 
+const getSingleUserFromDB = async(id:number, res:Response)=>{
+      const result = await pool.query(
+      `SELECT * FROM users WHERE id = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    };
+return result;
+};
+
+
 
 export const userService ={
     createUserIntoDB,
     getUsersFromDB,
+    getSingleUserFromDB,
+
 };

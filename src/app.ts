@@ -25,45 +25,6 @@ app.get("/", (req: Request, res: Response) => {
 
 
 
-app.get("/users/:id", async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-
-  if (!Number.isInteger(id)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid user id",
-    });
-  }
-
-  try {
-    const result = await pool.query(
-      `SELECT * FROM users WHERE id = $1`,
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "User retrieved successfully",
-      data: result.rows[0],
-    });
-  } catch (error) {
-    console.error("GET /users/:id failed:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
-});
-
-
-
 
 app.put("/users/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
