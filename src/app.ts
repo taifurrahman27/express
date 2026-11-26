@@ -1,13 +1,13 @@
 import "dotenv/config";
 import express, { type Application, type Request, type Response } from "express";
 import { initDB, pool } from "./db";
+import { userRouter } from "./modules/users/user.route";
 
 const app: Application = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-initDB();
 
 
 
@@ -20,18 +20,10 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 
-app.post("/users", async (req: Request, res: Response) => {
-  const { name, email, password, age } = req.body;
-  try {
-    const result = await pool.query(
-      "INSERT INTO users (name, email, password, age) VALUES ($1, $2, $3, $4) RETURNING id, name, email, age, is_active, created_at",
-      [name, email, password, age]
-    );
-    res.status(201).json({ success: true, data: result.rows[0] });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+app.use("/", userRouter);
+
+
+
 
 
 app.get("/users", async (req: Request, res: Response) => {
