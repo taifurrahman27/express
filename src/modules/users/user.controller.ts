@@ -131,6 +131,47 @@ const result = await userService.updateUserInDB(req.body, id as number)
 }
 
 
+const deleteUser =  async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid user id",
+    });
+  }
+
+  try {
+  const result = await userService.deleteUserFromDB(id as number);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    if (error?.code === "23503") {
+      return res.status(409).json({
+        success: false,
+        message: "Cannot delete user because related records exist",
+      });
+    }
+
+    console.error("DELETE /users/:id failed:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+
+};
 
 
 export const userController = {
@@ -138,4 +179,6 @@ export const userController = {
     getUsers,
     getSingleUser,
     updateUser,
+    deleteUser,
+
 };
