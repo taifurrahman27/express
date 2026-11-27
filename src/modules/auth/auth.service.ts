@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { pool } from "../../db";
+import jwt from "jsonwebtoken";
 
 
 const loginUserInDB = async(payload:{email:string, password:string })=>{
@@ -22,6 +23,22 @@ if(!matchPassword){
     throw new Error("invalid email or password!!");
 };
 
+
+const jwtPayload ={
+    id: user.rows[0].id,
+    name: user.rows[0].name,
+    email : user.rows[0].email,
+};
+
+const secret = process.env.JWT_SECRET;
+if (!secret) {
+  throw new Error("JWT_SECRET is not set");
+}
+
+const accessToken = jwt.sign(jwtPayload, secret, { expiresIn: "2d" });
+
+delete user.rows[0].password;
+return {accessToken, use:user.rows[0]};
 };
 
 
